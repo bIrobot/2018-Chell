@@ -47,15 +47,22 @@ class MyRobot(wpilib.IterativeRobot):
         self.elevatorSwitchClimbHigh = wpilib.DigitalInput(9)
         self.elevatorSwitchMax = wpilib.DigitalInput(10)
 
+        NetworkTables.initialize()
         self.sd = NetworkTables.getTable("SmartDashboard")
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
-        pass
+        gameData = wpilib.DriverStation.getInstance().getGameSpecificMessage()
+        if gameData[0] == 'L':
+            self.sd.putString('gameData', "Left")
+        elif gameData[0] == 'R':
+            self.sd.putString('gameData', "Right")
+        else:
+            self.sd.putString('gameData', "No Data")
 
     def autonomousPeriodic(self):
         """This function is called periodically during autonomous."""
-        pass
+        self.drive.arcadeDrive(0, 0, squaredInputs=True)
 
     def teleopInit(self):
         wpilib.IterativeRobot.teleopInit(self)
