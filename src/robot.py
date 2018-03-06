@@ -58,11 +58,12 @@ class MyRobot(wpilib.IterativeRobot):
         #   modes are located in
         # * The second argument is passed to each StatefulAutonomous when they
         #   start up
-        self.automodes = AutonomousModeSelector('autonomous',
-                                                self.components)
+        self.automodes = AutonomousModeSelector('autonomous', self.components)
 
         NetworkTables.initialize()
         self.sd = NetworkTables.getTable("SmartDashboard")
+
+        wpilib.CameraServer.launch()
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""

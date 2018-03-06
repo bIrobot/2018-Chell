@@ -13,7 +13,7 @@ class MiddlePosition(StatefulAutonomous):
 
     @timed_state(duration=3, next_state='stop')
     def drive_forward(self):
-        self.drive.arcadeDrive(-0.5, 0, squaredInputs=False)
+        self.drive.arcadeDrive(0.25, 0, squaredInputs=False)
 
     @state()
     def stop(self):
