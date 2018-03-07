@@ -3,6 +3,7 @@
 import wpilib
 from wpilib.drive import DifferentialDrive
 import ctre
+from robotpy_ext.common_drivers import navx
 from networktables import NetworkTables
 from robotpy_ext.autonomous import AutonomousModeSelector
 
@@ -47,6 +48,15 @@ class MyRobot(wpilib.IterativeRobot):
         self.elevatorSwitchClimbLow = wpilib.DigitalInput(8)
         self.elevatorSwitchClimbHigh = wpilib.DigitalInput(9)
         self.elevatorSwitchMax = wpilib.DigitalInput(10)
+
+        #
+        # Communicate w/navX MXP via the MXP SPI Bus.
+        # - Alternatively, use the i2c bus.
+        # See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface/ for details
+        #
+
+        self.navx = navx.AHRS.create_spi()
+        # self.navx = navx.AHRS.create_i2c()
 
         # Items in this dictionary are available in your autonomous mode
         # as attributes on your autonomous object
@@ -272,6 +282,16 @@ class MyRobot(wpilib.IterativeRobot):
 
     #         if self.stick.getRawButton(4) is True and self.stick.getRawButton(8) is True:
     #             self.resetPosition = True
+
+        self.sd.putBoolean('drive/navx/SupportsDisplacement', self.navx._isDisplacementSupported())
+        self.sd.putBoolean('drive/navx/IsCalibrating', self.navx.isCalibrating())
+        self.sd.putBoolean('drive/navx/IsConnected', self.navx.isConnected())
+        self.sd.putNumber('drive/navx/angle', self.navx.getAngle())
+        self.sd.putNumber('drive/navx/pitch', self.navx.getPitch())
+        self.sd.putNumber('drive/navx/yaw', self.navx.getYaw())
+        self.sd.putNumber('drive/navx/roll', self.navx.getRoll())
+        self.sd.putNumber('drive/navx/timestamp', self.navx.getLastSensorTimestamp())
+        self.sd.putNumber('robot/time', wpilib.Timer.getMatchTime())
 
     def testPeriodic(self):
         """This function is called periodically during test mode."""
