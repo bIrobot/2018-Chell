@@ -35,5 +35,5 @@ class PhysicsEngine(object):
         rf_motor = hal_data['CAN'][3]['value']
         lf_motor = hal_data['CAN'][4]['value']
 
-        speed, rotation = drivetrains.four_motor_drivetrain(lr_motor, rr_motor, lf_motor, rf_motor, x_wheelbase=2, speed=6, deadzone=drivetrains.linear_deadzone(0.1))
+        speed, rotation = drivetrains.four_motor_drivetrain(lr_motor * -1, rr_motor * -1, lf_motor * -1, rf_motor * -1, x_wheelbase=2, speed=6, deadzone=drivetrains.linear_deadzone(0.1))
         self.physics_controller.drive(speed, rotation, tm_diff)

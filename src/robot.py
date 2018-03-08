@@ -26,6 +26,11 @@ class MyRobot(wpilib.IterativeRobot):
         self.rearLeft = ctre.wpi_talonsrx.WPI_TalonSRX(2)
         self.left = wpilib.SpeedControllerGroup(self.frontLeft, self.rearLeft)
 
+        self.frontRight.setExpiration(0.2)
+        self.rearRight.setExpiration(0.2)
+        self.frontRight.setExpiration(0.2)
+        self.rearLeft.setExpiration(0.2)
+
         self.drive = DifferentialDrive(self.left, self.right)
 
         # initialize motors other than drive
@@ -73,7 +78,7 @@ class MyRobot(wpilib.IterativeRobot):
         NetworkTables.initialize()
         self.sd = NetworkTables.getTable("SmartDashboard")
 
-        wpilib.CameraServer.launch()
+        wpilib.CameraServer.launch('vision.py:main')
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
@@ -111,13 +116,28 @@ class MyRobot(wpilib.IterativeRobot):
         self.enableSequence1 = True
         self.enableSequence2 = True
 
+        self.navx.reset()
+
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
-        RightXAxis = self.stick.getRawAxis(4)
+        RightXAxis = self.stick.getRawAxis(4) * 0.65
         RightYAxis = self.stick.getRawAxis(5) * -1
 
         #         xAxis = 0
         #         yAxis = 0
+
+        if RightYAxis >= 0.25 or RightYAxis <= -0.25:
+            if RightYAxis <= -0.65:
+                RightYAxis = -0.65
+            self.frontRight.configOpenLoopRamp(1, 0)
+            self.rearRight.configOpenLoopRamp(1, 0)
+            self.frontRight.configOpenLoopRamp(1, 0)
+            self.rearLeft.configOpenLoopRamp(1, 0)
+        else:
+            self.frontRight.configOpenLoopRamp(0, 0)
+            self.rearRight.configOpenLoopRamp(0, 0)
+            self.frontRight.configOpenLoopRamp(0, 0)
+            self.rearLeft.configOpenLoopRamp(0, 0)
 
         self.drive.arcadeDrive(RightYAxis, RightXAxis, squaredInputs=True)
 
