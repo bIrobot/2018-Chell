@@ -54,6 +54,9 @@ class MyRobot(wpilib.IterativeRobot):
         self.elevatorSwitchClimbHigh = wpilib.DigitalInput(9)
         self.elevatorSwitchMax = wpilib.DigitalInput(10)
 
+        self.powerDistributionPanel = wpilib.PowerDistributionPanel()
+        self.powerDistributionPanel.resetTotalEnergy()
+
         #
         # Communicate w/navX MXP via the MXP SPI Bus.
         # - Alternatively, use the i2c bus.
@@ -97,6 +100,11 @@ class MyRobot(wpilib.IterativeRobot):
     def teleopInit(self):
         wpilib.IterativeRobot.teleopInit(self)
 
+        self.setRamp = False
+        self.rampState = False
+
+        self.sdUpdateCount = 0
+
         self.battleAxeUp = 0
         self.battleAxeDown = 0
 
@@ -118,31 +126,46 @@ class MyRobot(wpilib.IterativeRobot):
 
         self.navx.reset()
 
+        self.powerDistributionPanel.resetTotalEnergy()
+
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
-        RightXAxis = self.stick.getRawAxis(4) * 0.65
-        RightYAxis = self.stick.getRawAxis(5) * -1
+        rightXAxis = self.stick.getRawAxis(4) * 0.65
+        rightYAxis = self.stick.getRawAxis(5) * -1
 
-        #         xAxis = 0
-        #         yAxis = 0
+        # rightXAxis = 0
+        # rightYAxis = 0
 
-        if RightYAxis >= 0.25 or RightYAxis <= -0.25:
-            if RightYAxis <= -0.65:
-                RightYAxis = -0.65
-            self.frontRight.configOpenLoopRamp(1, 0)
-            self.rearRight.configOpenLoopRamp(1, 0)
-            self.frontRight.configOpenLoopRamp(1, 0)
-            self.rearLeft.configOpenLoopRamp(1, 0)
+        if rightYAxis >= 0.25 or rightYAxis <= -0.25:
+            if rightYAxis <= -0.65:
+                rightYAxis = -0.65
+            self.setRamp = True
         else:
-            self.frontRight.configOpenLoopRamp(0, 0)
-            self.rearRight.configOpenLoopRamp(0, 0)
-            self.frontRight.configOpenLoopRamp(0, 0)
-            self.rearLeft.configOpenLoopRamp(0, 0)
+            self.setRamp = False
 
-        self.drive.arcadeDrive(RightYAxis, RightXAxis, squaredInputs=True)
+        if self.setRamp != self.rampState:
+            if self.setRamp is True:
+                self.frontRight.configOpenLoopRamp(1, 0)
+                self.rearRight.configOpenLoopRamp(1, 0)
+                self.frontRight.configOpenLoopRamp(1, 0)
+                self.rearLeft.configOpenLoopRamp(1, 0)
+                self.rampState = True
+            else:
+                self.frontRight.configOpenLoopRamp(0, 0)
+                self.rearRight.configOpenLoopRamp(0, 0)
+                self.frontRight.configOpenLoopRamp(0, 0)
+                self.rearLeft.configOpenLoopRamp(0, 0)
+                self.rampState = False
 
-        LeftYAxis = self.stick.getRawAxis(1)  # Get joystick value
-        LeftYAxis = self.normalize(LeftYAxis, 0.15)  # Set deadzone
+        self.drive.arcadeDrive(rightYAxis, rightXAxis, squaredInputs=True)
+
+        if self.sdUpdateCount >= 5:
+            self.sdUpdate()
+            self.sdUpdateCount = 0
+        self.sdUpdateCount += 1
+
+        leftYAxis = self.stick.getRawAxis(1)  # Get joystick value
+        leftYAxis = self.normalize(leftYAxis, 0.15)  # Set deadzone
 
         if self.stick.getRawAxis(1) < 0.15 and self.stick.getRawAxis(1) > -0.15 and self.climbMode is False:
             if self.elevatorSetpointPosition < 0:
@@ -180,25 +203,25 @@ class MyRobot(wpilib.IterativeRobot):
                 self.battleAxeDown = 0
             self.battleAxe.set(self.battleAxeUp + self.battleAxeDown)
         elif self.climbMode is False:
-            if LeftYAxis < 0:
-                elevatorUp = LeftYAxis
+            if leftYAxis < 0:
+                elevatorUp = leftYAxis
                 elevatorDown = 0
                 if self.elevatorSwitchDriveHigh.get() is False:
                     self.elevatorSetpointPosition = 0.3
             else:
                 elevatorUp = 0
-                elevatorDown = LeftYAxis
+                elevatorDown = leftYAxis
                 if self.elevatorSwitchDriveLow.get() is False:
                     self.elevatorSetpointPosition = -0.4
         else:
-            if LeftYAxis < 0:
-                elevatorUp = LeftYAxis
+            if leftYAxis < 0:
+                elevatorUp = leftYAxis
                 elevatorDown = 0
                 if self.elevatorSwitchClimbHigh.get() is False:
                     self.elevatorClimbPosition = 0.3
             else:
                 elevatorUp = 0
-                elevatorDown = LeftYAxis
+                elevatorDown = leftYAxis
                 if self.elevatorSwitchClimbLow.get() is False:
                     self.elevatorClimbPosition = -0.4
 
@@ -300,19 +323,6 @@ class MyRobot(wpilib.IterativeRobot):
         # self.actuator.set(self.stick.getRawAxis(5) * 0.4)
         # self.axeExtender.set(self.actuatorSwitchMin.get())
 
-    #         if self.stick.getRawButton(4) is True and self.stick.getRawButton(8) is True:
-    #             self.resetPosition = True
-
-        self.sd.putBoolean('drive/navx/SupportsDisplacement', self.navx._isDisplacementSupported())
-        self.sd.putBoolean('drive/navx/IsCalibrating', self.navx.isCalibrating())
-        self.sd.putBoolean('drive/navx/IsConnected', self.navx.isConnected())
-        self.sd.putNumber('drive/navx/angle', self.navx.getAngle())
-        self.sd.putNumber('drive/navx/pitch', self.navx.getPitch())
-        self.sd.putNumber('drive/navx/yaw', self.navx.getYaw())
-        self.sd.putNumber('drive/navx/roll', self.navx.getRoll())
-        self.sd.putNumber('drive/navx/timestamp', self.navx.getLastSensorTimestamp())
-        self.sd.putNumber('robot/time', wpilib.Timer.getMatchTime())
-
     def testPeriodic(self):
         """This function is called periodically during test mode."""
 
@@ -331,6 +341,19 @@ class MyRobot(wpilib.IterativeRobot):
         else:
             return 0
 
+    def sdUpdate(self):
+        self.sd.putBoolean('drive/navx/SupportsDisplacement', self.navx._isDisplacementSupported())
+        self.sd.putBoolean('drive/navx/IsCalibrating', self.navx.isCalibrating())
+        self.sd.putBoolean('drive/navx/IsConnected', self.navx.isConnected())
+        self.sd.putNumber('drive/navx/angle', self.navx.getAngle())
+        self.sd.putNumber('drive/navx/pitch', self.navx.getPitch())
+        self.sd.putNumber('drive/navx/yaw', self.navx.getYaw())
+        self.sd.putNumber('drive/navx/roll', self.navx.getRoll())
+        self.sd.putNumber('drive/navx/timestamp', self.navx.getLastSensorTimestamp())
+        self.sd.putNumber('robot/time', wpilib.Timer.getMatchTime())
+        self.sd.putNumber('robot/totalCurrent', self.powerDistributionPanel.getTotalCurrent())
+        self.sd.putNumber('robot/totalEnergy', self.powerDistributionPanel.getTotalEnergy())
+        self.sd.putNumber('robot/totalPower', self.powerDistributionPanel.getTotalPower())
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)
