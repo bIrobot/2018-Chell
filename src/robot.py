@@ -63,13 +63,14 @@ class MyRobot(wpilib.IterativeRobot):
         # See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface/ for details
         #
 
-        self.navx = navx.AHRS.create_spi()
+        self.navxSensor = navx.AHRS.create_spi()
         # self.navx = navx.AHRS.create_i2c()
 
         # Items in this dictionary are available in your autonomous mode
         # as attributes on your autonomous object
         self.components = {
-            'drive': self.drive
+            'drive': self.drive,
+            'navxSensor': self.navxSensor
         }
 
         # * The first argument is the name of the package that your autonomous
@@ -124,7 +125,7 @@ class MyRobot(wpilib.IterativeRobot):
         self.enableSequence1 = True
         self.enableSequence2 = True
 
-        self.navx.reset()
+        self.navxSensor.reset()
 
         self.powerDistributionPanel.resetTotalEnergy()
 
@@ -342,14 +343,14 @@ class MyRobot(wpilib.IterativeRobot):
             return 0
 
     def sdUpdate(self):
-        self.sd.putBoolean('drive/navx/SupportsDisplacement', self.navx._isDisplacementSupported())
-        self.sd.putBoolean('drive/navx/IsCalibrating', self.navx.isCalibrating())
-        self.sd.putBoolean('drive/navx/IsConnected', self.navx.isConnected())
-        self.sd.putNumber('drive/navx/angle', self.navx.getAngle())
-        self.sd.putNumber('drive/navx/pitch', self.navx.getPitch())
-        self.sd.putNumber('drive/navx/yaw', self.navx.getYaw())
-        self.sd.putNumber('drive/navx/roll', self.navx.getRoll())
-        self.sd.putNumber('drive/navx/timestamp', self.navx.getLastSensorTimestamp())
+        self.sd.putBoolean('drive/navx/SupportsDisplacement', self.navxSensor._isDisplacementSupported())
+        self.sd.putBoolean('drive/navx/IsCalibrating', self.navxSensor.isCalibrating())
+        self.sd.putBoolean('drive/navx/IsConnected', self.navxSensor.isConnected())
+        self.sd.putNumber('drive/navx/angle', self.navxSensor.getAngle())
+        self.sd.putNumber('drive/navx/pitch', self.navxSensor.getPitch())
+        self.sd.putNumber('drive/navx/yaw', self.navxSensor.getYaw())
+        self.sd.putNumber('drive/navx/roll', self.navxSensor.getRoll())
+        self.sd.putNumber('drive/navx/timestamp', self.navxSensor.getLastSensorTimestamp())
         self.sd.putNumber('robot/time', wpilib.Timer.getMatchTime())
         self.sd.putNumber('robot/totalCurrent', self.powerDistributionPanel.getTotalCurrent())
         self.sd.putNumber('robot/totalEnergy', self.powerDistributionPanel.getTotalEnergy())
