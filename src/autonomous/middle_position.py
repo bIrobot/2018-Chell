@@ -10,16 +10,33 @@ class MiddlePosition(StatefulAutonomous):
         self.navx = navx_drive.Navx(self.navxSensor)
         self.sd = NetworkTables.getTable("SmartDashboard")
 
-    @timed_state(duration=0.5, next_state='drive_forward', first=True)
+    @timed_state(duration=0.5, next_state='rotate', first=True)
     def drive_wait(self):
         self.navx.reset()
+        self.gameData = self.sd.getString("gameData", "No Data")
         self.drive.arcadeDrive(0, 0, squaredInputs=False)
 
-    @timed_state(duration=3, next_state='stop')
+    @timed_state(duration=1.75, next_state='drive_forward')
+    def rotate(self):
+        if self.gameData == "Left":
+            self.drive.arcadeDrive(0.3, self.navx.drive(self.sd.getNumber("slowSpeed", 0.07),
+                                                         self.sd.getNumber("fastSpeed", 0.3), -60),
+                                   squaredInputs=False)
+        elif self.gameData == "Right":
+            self.drive.arcadeDrive(0.3, self.navx.drive(self.sd.getNumber("slowSpeed", 0.07),
+                                                         self.sd.getNumber("fastSpeed", 0.3), 60),
+                                   squaredInputs=False)
+
+    @timed_state(duration=2.8, next_state='stop')
     def drive_forward(self):
-        self.drive.arcadeDrive(0.25, self.navx.drive(self.sd.getNumber("slowSpeed", 0.07),
-                                                     self.sd.getNumber("fastSpeed", 0.2), 0),
-                               squaredInputs=False)  # Drive forward and straight
+        if self.gameData == "Left":
+            self.drive.arcadeDrive(0.25, self.navx.drive(self.sd.getNumber("slowSpeed", 0.07),
+                                                         self.sd.getNumber("fastSpeed", 0.2), 0),
+                                   squaredInputs=False)  # Drive forward and straight
+        elif self.gameData == "Right":
+            self.drive.arcadeDrive(0.23, self.navx.drive(self.sd.getNumber("slowSpeed", 0.07),
+                                                         self.sd.getNumber("fastSpeed", 0.2), 0),
+                                   squaredInputs=False)  # Drive forward and straight
 
     @state()
     def stop(self):

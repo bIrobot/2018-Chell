@@ -18,6 +18,8 @@ class MyRobot(wpilib.IterativeRobot):
         # joystick 1 on the driver station
         self.stick = wpilib.XboxController(0)
 
+        self.driverStation = wpilib.DriverStation
+
         self.frontRight = ctre.wpi_talonsrx.WPI_TalonSRX(3)
         self.rearRight = ctre.wpi_talonsrx.WPI_TalonSRX(1)
         self.right = wpilib.SpeedControllerGroup(self.frontRight, self.rearRight)
@@ -86,7 +88,7 @@ class MyRobot(wpilib.IterativeRobot):
 
     def autonomousInit(self):
         """This function is run once each time the robot enters autonomous mode."""
-        gameData = wpilib.DriverStation.getInstance().getGameSpecificMessage()
+        gameData = self.driverStation.getInstance().getGameSpecificMessage()
         if gameData[0] == 'L':
             self.sd.putString('gameData', "Left")
         elif gameData[0] == 'R':
@@ -355,6 +357,12 @@ class MyRobot(wpilib.IterativeRobot):
         self.sd.putNumber('robot/totalCurrent', self.powerDistributionPanel.getTotalCurrent())
         self.sd.putNumber('robot/totalEnergy', self.powerDistributionPanel.getTotalEnergy())
         self.sd.putNumber('robot/totalPower', self.powerDistributionPanel.getTotalPower())
+        if wpilib.DriverStation.getInstance().getAlliance() is wpilib.DriverStation.Alliance.Red:
+            theme = "red"
+            self.sd.putString('theme', theme)
+        elif wpilib.DriverStation.getInstance().getAlliance() is wpilib.DriverStation.Alliance.Blue:
+            theme = "blue"
+            self.sd.putString('theme', theme)
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)

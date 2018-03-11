@@ -17,7 +17,7 @@ class DriveForward(StatefulAutonomous):
         self.navx.reset()
         self.drive.arcadeDrive(0, 0, squaredInputs=False)
 
-    @timed_state(duration=3, next_state='stop')
+    @timed_state(duration=4, next_state='stop')
     def drive_forward(self):
         self.drive.arcadeDrive(0.25, self.navx.drive(self.sd.getNumber("slowSpeed", 0.07),
                                                      self.sd.getNumber("fastSpeed", 0.2), 0),

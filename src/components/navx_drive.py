@@ -1,5 +1,5 @@
 class Navx():
-    BANGBANG_TOLERANCE = 5.0
+    BANGBANG_TOLERANCE = 7.0
 
     def __init__(self, navx):
         # Communicate w/navX MXP via the MXP SPI Bus.
