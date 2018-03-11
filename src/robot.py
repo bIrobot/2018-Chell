@@ -90,11 +90,18 @@ class MyRobot(wpilib.IterativeRobot):
         """This function is run once each time the robot enters autonomous mode."""
         gameData = self.driverStation.getInstance().getGameSpecificMessage()
         if gameData[0] == 'L':
-            self.sd.putString('gameData', "Left")
+            self.sd.putString('gameData1', "Left")
         elif gameData[0] == 'R':
-            self.sd.putString('gameData', "Right")
-        else:
-            self.sd.putString('gameData', "No Data")
+            self.sd.putString('gameData1', "Right")
+        if gameData[1] == 'L':
+            self.sd.putString('gameData2', "Left")
+        elif gameData[1] == 'R':
+            self.sd.putString('gameData2', "Right")
+        if gameData[2] == 'L':
+            self.sd.putString('gameData3', "Left")
+        elif gameData[2] == 'R':
+            self.sd.putString('gameData3', "Right")
+
 
     def autonomousPeriodic(self):
         """This function is called periodically during autonomous."""
