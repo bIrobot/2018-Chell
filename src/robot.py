@@ -102,7 +102,6 @@ class MyRobot(wpilib.IterativeRobot):
         elif gameData[2] == 'R':
             self.sd.putString('gameData3', "Right")
 
-
     def autonomousPeriodic(self):
         """This function is called periodically during autonomous."""
         self.automodes.run()
@@ -173,6 +172,7 @@ class MyRobot(wpilib.IterativeRobot):
             self.sdUpdate()
             self.sdUpdateCount = 0
         self.sdUpdateCount += 1
+        self.sd.putNumber('robot/time', wpilib.Timer.getMatchTime())
 
         leftYAxis = self.stick.getRawAxis(1)  # Get joystick value
         leftYAxis = self.normalize(leftYAxis, 0.15)  # Set deadzone
@@ -330,9 +330,6 @@ class MyRobot(wpilib.IterativeRobot):
 
         self.axeExtender.set(axeOut + axeIn)
 
-        # self.actuator.set(self.stick.getRawAxis(5) * 0.4)
-        # self.axeExtender.set(self.actuatorSwitchMin.get())
-
     def testPeriodic(self):
         """This function is called periodically during test mode."""
 
@@ -352,15 +349,7 @@ class MyRobot(wpilib.IterativeRobot):
             return 0
 
     def sdUpdate(self):
-        self.sd.putBoolean('drive/navx/SupportsDisplacement', self.navxSensor._isDisplacementSupported())
-        self.sd.putBoolean('drive/navx/IsCalibrating', self.navxSensor.isCalibrating())
-        self.sd.putBoolean('drive/navx/IsConnected', self.navxSensor.isConnected())
-        self.sd.putNumber('drive/navx/angle', self.navxSensor.getAngle())
-        self.sd.putNumber('drive/navx/pitch', self.navxSensor.getPitch())
         self.sd.putNumber('drive/navx/yaw', self.navxSensor.getYaw())
-        self.sd.putNumber('drive/navx/roll', self.navxSensor.getRoll())
-        self.sd.putNumber('drive/navx/timestamp', self.navxSensor.getLastSensorTimestamp())
-        self.sd.putNumber('robot/time', wpilib.Timer.getMatchTime())
         self.sd.putNumber('robot/totalCurrent', self.powerDistributionPanel.getTotalCurrent())
         self.sd.putNumber('robot/totalEnergy', self.powerDistributionPanel.getTotalEnergy())
         self.sd.putNumber('robot/totalPower', self.powerDistributionPanel.getTotalPower())
