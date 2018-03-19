@@ -19,9 +19,7 @@ class DriveForward(StatefulAutonomous):
 
     @timed_state(duration=4, next_state='stop')
     def drive_forward(self):
-        self.drive.arcadeDrive(0.25, self.navx.drive(self.sd.getNumber("slowSpeed", 0.07),
-                                                     self.sd.getNumber("fastSpeed", 0.2), 0),
-                               squaredInputs=False)  # Drive forward and straight
+        self.drive.arcadeDrive(0.25, self.navx.drive(0.07, 0.2, 0), squaredInputs=False)  # Drive forward and straight
 
     @state()
     def stop(self):

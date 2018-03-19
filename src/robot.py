@@ -72,7 +72,10 @@ class MyRobot(wpilib.IterativeRobot):
         # as attributes on your autonomous object
         self.components = {
             'drive': self.drive,
-            'navxSensor': self.navxSensor
+            'navxSensor': self.navxSensor,
+            'actuator': self.actuator,
+            'actuatorSwitchMin': self.actuatorSwitchMin,
+            'actuatorSwitchMax': self.actuatorSwitchMax
         }
 
         # * The first argument is the name of the package that your autonomous
