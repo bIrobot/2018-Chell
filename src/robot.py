@@ -282,7 +282,8 @@ class MyRobot(wpilib.IterativeRobot):
         if self.actuatorSwitchMin.get() is False:
             self.actuatorSpeedyIn = 0
             self.actuatorBack = True
-            if self.climbMode is False and self.adjustMode is False and self.enableSequence1 is False and self.enableSequence2 is False and self.startClimb is False:
+            if self.climbMode is False and self.adjustMode is False and self.enableSequence1 is False\
+                    and self.enableSequence2 is False and self.startClimb is False:
                 self.battleAxeUp = -0.3
 
         if self.actuatorSwitchMax.get() is False:
@@ -342,12 +343,12 @@ class MyRobot(wpilib.IterativeRobot):
             if (joystickInput - deadzone) < 0:
                 return 0
             else:
-                return ((joystickInput - deadzone) / (1 - deadzone))
+                return (joystickInput - deadzone) / (1 - deadzone)
         elif joystickInput < 0:
             if (joystickInput + deadzone) > 0:
                 return 0
             else:
-                return ((joystickInput + deadzone) / (1 - deadzone))
+                return (joystickInput + deadzone) / (1 - deadzone)
         else:
             return 0
 
@@ -362,6 +363,7 @@ class MyRobot(wpilib.IterativeRobot):
         elif wpilib.DriverStation.getInstance().getAlliance() is wpilib.DriverStation.Alliance.Blue:
             theme = "blue"
             self.sd.putString('theme', theme)
+
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)

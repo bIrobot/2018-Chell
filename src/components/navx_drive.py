@@ -1,4 +1,4 @@
-class Navx():
+class Navx:
     BANGBANG_TOLERANCE = 7.0
 
     def __init__(self, navx):
