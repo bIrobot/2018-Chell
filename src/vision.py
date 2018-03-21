@@ -18,10 +18,10 @@ def main():
     cvSink = cs.getVideo()
 
     # (optional) Setup a CvSource. This will send images back to the Dashboard
-    outputStream = cs.putVideo("Name", 320, 240)
+    outputStream = cs.putVideo("Name", 160, 120)
 
     # Allocating new images is very expensive, always try to preallocate
-    img = np.zeros(shape=(240, 320, 3), dtype=np.uint8)
+    img = np.zeros(shape=(120, 160, 3), dtype=np.uint8)
 
     while True:
         # Tell the CvSink to grab a frame from the camera and put it

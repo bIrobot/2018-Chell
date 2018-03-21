@@ -75,7 +75,16 @@ class MyRobot(wpilib.IterativeRobot):
             'navxSensor': self.navxSensor,
             'actuator': self.actuator,
             'actuatorSwitchMin': self.actuatorSwitchMin,
-            'actuatorSwitchMax': self.actuatorSwitchMax
+            'actuatorSwitchMax': self.actuatorSwitchMax,
+            'elevator': self.elevator,
+            'elevatorSwitchMin': self.elevatorSwitchMin,
+            'elevatorSwitchDriveLow': self.elevatorSwitchDriveLow,
+            'elevatorSwitchDriveHigh': self.elevatorSwitchDriveHigh,
+            'elevatorSwitchClimbLow': self.elevatorSwitchClimbLow,
+            'elevatorSwitchClimbHigh': self.elevatorSwitchClimbHigh,
+            'elevatorSwitchMax': self.elevatorSwitchMax,
+            'intakeRight': self.intakeRight,
+            'intakeLeft': self.intakeLeft
         }
 
         # * The first argument is the name of the package that your autonomous
@@ -125,8 +134,8 @@ class MyRobot(wpilib.IterativeRobot):
         self.elevatorDirection = 0
         self.actuatorBack = False
 
-        self.elevatorSetpointPosition = -0.6
-        self.elevatorClimbPosition = -0.6
+        self.elevatorSetpointPosition = -0.55
+        self.elevatorClimbPosition = -0.45
 
         self.startClimb = False
         self.climbMode = False
@@ -190,7 +199,7 @@ class MyRobot(wpilib.IterativeRobot):
             if self.elevatorSwitchDriveHigh.get() is False:
                 self.elevatorSetpointPosition = 0
             elif self.elevatorSwitchDriveLow.get() is False:
-                self.elevatorSetpointPosition = -0.6
+                self.elevatorSetpointPosition = -0.45
                 self.enableSequence1 = False
                 self.intakeRight.set(0)
                 self.intakeLeft.set(0)
