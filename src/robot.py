@@ -249,7 +249,7 @@ class MyRobot(wpilib.IterativeRobot):
 
         if self.stick.getRawAxis(2) > 0.1 and self.climbMode is False:
             elevatorUp = 0
-            elevatorDown = self.stick.getRawAxis(2) * 0.8
+            elevatorDown = self.stick.getRawAxis(2) * 0.5
             self.intakeRight.set(-1)
             self.intakeLeft.set(-1)
             if self.elevatorSwitchDriveLow.get() is False:
@@ -304,7 +304,7 @@ class MyRobot(wpilib.IterativeRobot):
 
         if self.stick.getRawButton(2) is True and self.stick.getRawButton(7) is True and self.climbMode is True:
             self.climbRobot = True
-            self.elevatorSetpointPosition = 0.4
+            self.elevatorSetpointPosition = 0.5
 
         if self.startClimb is True:
             self.battleAxeUp = -0.35
@@ -345,6 +345,23 @@ class MyRobot(wpilib.IterativeRobot):
 
     def testPeriodic(self):
         """This function is called periodically during test mode."""
+        if self.stick.getRawButton(6) is True:
+            actuatorIn = -0.7
+            actuatorOut = 0
+        elif self.stick.getRawButton(5) is True:
+            actuatorIn = 0.7
+            actuatorOut = 0
+        else:
+            actuatorIn = 0
+            actuatorOut = 0
+        if self.actuatorSwitchMin.get() is False:
+            actuatorIn = 0
+        if self.actuatorSwitchMax.get() is False:
+            actuatorOut = 0
+        self.axeExtender.set(actuatorIn + actuatorOut)
+
+        self.sd.putBoolean('example_variable', self.battleAxeExtenderSwitch.get())
+
         # self.axeExtender.set(1)
 
     def normalize(self, joystickInput, deadzone):

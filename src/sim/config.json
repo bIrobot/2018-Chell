@@ -6,9 +6,9 @@
   	  "h": 3,
 
       "start_positions": [
-            {"x": 2, "y": 5, "angle": 0, "name": "top"},
+            {"x": 2, "y": 5, "angle": 0, "name": "left"},
             {"x": 2, "y": 14, "angle": 0, "name": "middle"},
-            {"x": 2, "y": 23, "angle": 0, "name": "lower"}
+            {"x": 2, "y": 23, "angle": 0, "name": "right"}
         ]
   	},
 

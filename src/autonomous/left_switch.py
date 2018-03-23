@@ -85,7 +85,7 @@ class LeftSwitch(StatefulAutonomous):
 
     @timed_state(duration=1, next_state='stop')
     def drive_backward(self):
-        self.drive.arcadeDrive(-0.2, self.navx.drive(0.07, 0.2, -90), squaredInputs=False)
+        self.drive.arcadeDrive(-0.2, self.navx.drive(0.07, 0.2, 90), squaredInputs=False)
 
         if self.elevatorSwitchDriveLow.get() is False:
             self.elevator.set(-0.4)
@@ -97,7 +97,7 @@ class LeftSwitch(StatefulAutonomous):
 
     @timed_state(duration=4, next_state='stop')
     def cross_the_line(self):
-        self.drive.arcadeDrive(0.25, self.navx.drive(0.07, 0.2, 0), squaredInputs=False)
+        self.drive.arcadeDrive(0.36, self.navx.drive(0.15, 0.5, 0), squaredInputs=False)
 
     @state()
     def stop(self):
