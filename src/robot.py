@@ -199,7 +199,7 @@ class MyRobot(wpilib.IterativeRobot):
             if self.elevatorSwitchDriveHigh.get() is False:
                 self.elevatorSetpointPosition = 0
             elif self.elevatorSwitchDriveLow.get() is False:
-                self.elevatorSetpointPosition = -0.45
+                self.elevatorSetpointPosition = -0.55
                 self.enableSequence1 = False
                 self.intakeRight.set(0)
                 self.intakeLeft.set(0)
@@ -229,31 +229,31 @@ class MyRobot(wpilib.IterativeRobot):
                 elevatorUp = leftYAxis
                 elevatorDown = 0
                 if self.elevatorSwitchDriveHigh.get() is False:
-                    self.elevatorSetpointPosition = 0.3
+                    self.elevatorSetpointPosition = 0.55
             else:
                 elevatorUp = 0
                 elevatorDown = leftYAxis
                 if self.elevatorSwitchDriveLow.get() is False:
-                    self.elevatorSetpointPosition = -0.4
+                    self.elevatorSetpointPosition = -0.55
         else:
             if leftYAxis < 0:
                 elevatorUp = leftYAxis
                 elevatorDown = 0
                 if self.elevatorSwitchClimbHigh.get() is False:
-                    self.elevatorClimbPosition = 0.3
+                    self.elevatorClimbPosition = 0.55
             else:
                 elevatorUp = 0
                 elevatorDown = leftYAxis
                 if self.elevatorSwitchClimbLow.get() is False:
-                    self.elevatorClimbPosition = -0.4
+                    self.elevatorClimbPosition = -0.55
 
         if self.stick.getRawAxis(2) > 0.1 and self.climbMode is False:
             elevatorUp = 0
-            elevatorDown = self.stick.getRawAxis(2)
+            elevatorDown = self.stick.getRawAxis(2) * 0.8
             self.intakeRight.set(-1)
             self.intakeLeft.set(-1)
             if self.elevatorSwitchDriveLow.get() is False:
-                self.elevatorSetpointPosition = -0.4
+                self.elevatorSetpointPosition = -0.55
         else:
             self.intakeRight.set(0)
             self.intakeLeft.set(0)
@@ -266,7 +266,7 @@ class MyRobot(wpilib.IterativeRobot):
                 elevatorUp = 0
                 elevatorDown = self.elevatorSetpointPosition
             if self.elevatorSwitchDriveHigh.get() is False:
-                self.elevatorSetpointPosition = 0.4
+                self.elevatorSetpointPosition = 0.55
             elif self.elevatorSwitchDriveLow.get() is False:
                 self.elevatorSetpointPosition = 0
 
@@ -345,6 +345,7 @@ class MyRobot(wpilib.IterativeRobot):
 
     def testPeriodic(self):
         """This function is called periodically during test mode."""
+        # self.axeExtender.set(1)
 
     def normalize(self, joystickInput, deadzone):
         """joystickInput should be between -1 and 1, deadzone should be between 0 and 1."""
