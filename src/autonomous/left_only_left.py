@@ -6,6 +6,8 @@ from networktables import NetworkTables
 class LeftOnlyLeft(StatefulAutonomous):
     MODE_NAME = "Left Only Left"
 
+    DEFAULT = False
+
     def initialize(self):
         self.tilt = False
         self.elevatorDown = False
@@ -43,9 +45,16 @@ class LeftOnlyLeft(StatefulAutonomous):
     def drive_wait(self):
         self.gameData1 = self.sd.getString("gameData1", "No Data")
         self.gameData2 = self.sd.getString("gameData2", "No Data")
-        if self.gameData2 == "Left":
+        # if self.gameData2 == "Left":
+        #     StatefulAutonomous.next_state(self, name='scale_drive_forward')
+        # elif self.gameData1 == "Left":
+        #     StatefulAutonomous.next_state(self, name='switch_drive_forward')
+        # else:
+        #     StatefulAutonomous.next_state(self, name='cross_the_line')
+        self.data = self.gameData.getGameSpecificMessage()
+        if self.data[1] == "L":
             StatefulAutonomous.next_state(self, name='scale_drive_forward')
-        elif self.gameData1 == "Left":
+        elif self.data[0] == "L":
             StatefulAutonomous.next_state(self, name='switch_drive_forward')
         else:
             StatefulAutonomous.next_state(self, name='cross_the_line')

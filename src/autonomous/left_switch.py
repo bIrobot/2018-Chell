@@ -6,6 +6,8 @@ from networktables import NetworkTables
 class LeftSwitch(StatefulAutonomous):
     MODE_NAME = "Left Switch"
 
+    DEFAULT = True
+
     def initialize(self):
         self.tilt = False
         self.elevatorDown = False

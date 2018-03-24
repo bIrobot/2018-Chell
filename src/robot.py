@@ -84,7 +84,8 @@ class MyRobot(wpilib.IterativeRobot):
             'elevatorSwitchClimbHigh': self.elevatorSwitchClimbHigh,
             'elevatorSwitchMax': self.elevatorSwitchMax,
             'intakeRight': self.intakeRight,
-            'intakeLeft': self.intakeLeft
+            'intakeLeft': self.intakeLeft,
+            'gameData': self.driverStation.getInstance()
         }
 
         # * The first argument is the name of the package that your autonomous
@@ -151,7 +152,7 @@ class MyRobot(wpilib.IterativeRobot):
 
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
-        rightXAxis = self.stick.getRawAxis(4) * 0.65
+        rightXAxis = self.stick.getRawAxis(4) * 0.8
         rightYAxis = self.stick.getRawAxis(5) * -1
 
         # rightXAxis = 0
@@ -285,7 +286,7 @@ class MyRobot(wpilib.IterativeRobot):
             self.intakeRight.set(self.stick.getRawAxis(3))
             self.intakeLeft.set(self.stick.getRawAxis(3))
 
-        if self.stick.getRawButton(1) is True and self.stick.getRawButton(7) is True:
+        if self.stick.getRawButton(1) is True and self.stick.getRawButton(7) is True: # A and start button
             self.startClimb = True
 
         if self.actuatorSwitchMin.get() is False:
@@ -346,11 +347,11 @@ class MyRobot(wpilib.IterativeRobot):
     def testPeriodic(self):
         """This function is called periodically during test mode."""
         if self.stick.getRawButton(6) is True:
-            actuatorIn = -0.7
+            actuatorIn = -0.3
             actuatorOut = 0
         elif self.stick.getRawButton(5) is True:
-            actuatorIn = 0.7
-            actuatorOut = 0
+            actuatorIn = 0
+            actuatorOut = 0.3
         else:
             actuatorIn = 0
             actuatorOut = 0
@@ -358,7 +359,7 @@ class MyRobot(wpilib.IterativeRobot):
             actuatorIn = 0
         if self.actuatorSwitchMax.get() is False:
             actuatorOut = 0
-        self.axeExtender.set(actuatorIn + actuatorOut)
+        self.actuator.set(actuatorIn + actuatorOut)
 
         self.sd.putBoolean('example_variable', self.battleAxeExtenderSwitch.get())
 

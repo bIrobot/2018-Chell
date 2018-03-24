@@ -6,7 +6,7 @@ from networktables import NetworkTables
 class DriveForward(StatefulAutonomous):
     MODE_NAME = "Drive Forward"
 
-    DEFAULT = True
+    DEFAULT = False
 
     def initialize(self):
         self.navx = navx_drive.Navx(self.navxSensor)
