@@ -47,7 +47,7 @@ class MyRobot(wpilib.IterativeRobot):
 
         self.encoderTicksPerInch = 1159
 
-        self.elevator.setQuadraturePosition(0, 0)
+        # self.elevator.setQuadraturePosition(0, 0)
         self.elevator.configForwardSoftLimitThreshold(int(round(-0.25 * self.encoderTicksPerInch)), 10)
         self.elevator.configReverseSoftLimitThreshold(int(round(-40 * self.encoderTicksPerInch)), 10)
         self.elevator.configForwardSoftLimitEnable(True, 10)
@@ -69,6 +69,7 @@ class MyRobot(wpilib.IterativeRobot):
         self.battleAxeSwitchUp = wpilib.DigitalInput(2)
         self.battleAxeSwitchDown = wpilib.DigitalInput(3)
         self.battleAxeExtenderSwitch = wpilib.DigitalInput(4)
+        self.elevatorZeroSensor = wpilib.DigitalInput(5)
 
         self.powerDistributionPanel = wpilib.PowerDistributionPanel()
         self.powerDistributionPanel.resetTotalEnergy()
@@ -151,7 +152,7 @@ class MyRobot(wpilib.IterativeRobot):
 
         self.navxSensor.reset()
 
-        self.minPosition = -0.25
+        self.minPosition = -0.35
         self.drivePosition = -11
         self.climbPosition = -32
         self.maxPosition = -40
@@ -239,6 +240,9 @@ class MyRobot(wpilib.IterativeRobot):
             self.elevator.set(ctre.ControlMode.Position, int(round(self.maxPosition * self.encoderTicksPerInch)))
         else:
             self.elevator.set(ctre.ControlMode.PercentOutput, 0)
+
+        if self.elevatorZeroSensor.get() is False:
+            self.elevator.setQuadraturePosition(0, 0)
 
         if self.stick.getRawButton(1) is True and self.stick.getRawButton(7) is True:  # A and start button
             self.startClimb = True
