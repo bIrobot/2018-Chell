@@ -47,7 +47,7 @@ class MyRobot(wpilib.IterativeRobot):
 
         self.encoderTicksPerInch = 1159
 
-        # self.elevator.setQuadraturePosition(0, 0)
+        self.elevator.setQuadraturePosition(0, 0)
         self.elevator.configForwardSoftLimitThreshold(int(round(-0.25 * self.encoderTicksPerInch)), 10)
         self.elevator.configReverseSoftLimitThreshold(int(round(-40 * self.encoderTicksPerInch)), 10)
         self.elevator.configForwardSoftLimitEnable(True, 10)
