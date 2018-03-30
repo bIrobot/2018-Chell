@@ -6,6 +6,8 @@ from networktables import NetworkTables
 class RightScale(StatefulAutonomous):
     MODE_NAME = "Right Scale"
 
+    DISABLED = True
+
     def initialize(self):
         self.navx = navx_drive.Navx(self.navxSensor)
         self.sd = NetworkTables.getTable("SmartDashboard")

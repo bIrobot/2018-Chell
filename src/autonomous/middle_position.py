@@ -1,6 +1,7 @@
 from robotpy_ext.autonomous import StatefulAutonomous, state, timed_state
 from components import navx_drive
 from networktables import NetworkTables
+import ctre
 
 
 class MiddlePosition(StatefulAutonomous):
@@ -9,7 +10,12 @@ class MiddlePosition(StatefulAutonomous):
     def initialize(self):
         self.tilt = False
         self.elevatorDown = False
-        self.stop = False
+
+        self.encoderTicksPerInch = 1159
+        self.minPosition = -0.25
+        self.drivePosition = -11
+        self.climbPosition = -32
+        self.maxPosition = -40
 
         self.navx = navx_drive.Navx(self.navxSensor)
         self.sd = NetworkTables.getTable("SmartDashboard")
@@ -25,17 +31,16 @@ class MiddlePosition(StatefulAutonomous):
         else:
             self.actuator.set(0)
 
-        if self.elevatorSwitchClimbLow.get() is True and self.elevatorSwitchClimbHigh.get() is True and \
-                self.elevatorDown is False:
-            self.elevator.set(-0.55)
-        elif self.elevatorSwitchDriveLow.get() is True and self.elevatorSwitchDriveHigh.get() is True and \
-                self.elevatorDown is True:
-            self.elevator.set(0.3)
-        else:
+        if self.elevator.getQuadraturePosition() < (self.climbPosition + 1) * self.encoderTicksPerInch:
             self.elevatorDown = True
-            self.elevator.set(0)
+        if self.elevatorDown is False:
+            self.elevator.set(ctre.ControlMode.Position, int(round(self.climbPosition * self.encoderTicksPerInch)))
+        else:
+            self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
 
         self.drive.arcadeDrive(0, 0, squaredInputs=False)
+        self.intakeRight.set(0)
+        self.intakeLeft.set(0)
 
     @timed_state(duration=0.5, next_state='rotate')
     def drive_wait(self):
@@ -46,25 +51,16 @@ class MiddlePosition(StatefulAutonomous):
         elif self.gameData1 == "Left":
             StatefulAutonomous.next_state(self, name='left_rotate')
 
-
-        if self.elevatorSwitchDriveLow.get() is False:
-            self.elevator.set(-0.4)
-        elif self.elevatorSwitchDriveHigh.get() is False:
-            self.elevator.set(0)
+        self.drive.arcadeDrive(0, 0, squaredInputs=False)
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0)
         self.intakeLeft.set(0)
         self.actuator.set(0)
-        self.drive.arcadeDrive(0, 0, squaredInputs=False)
 
-    @timed_state(duration=1.75, next_state='right_drive_forward')
+    @timed_state(duration=2, next_state='right_drive_forward')
     def right_rotate(self):
         self.drive.arcadeDrive(0.32, self.navx.drive(0.15, 0.5, 60), squaredInputs=False)
-
-
-        if self.elevatorSwitchDriveLow.get() is False:
-            self.elevator.set(-0.4)
-        elif self.elevatorSwitchDriveHigh.get() is False:
-            self.elevator.set(0)
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0)
         self.intakeLeft.set(0)
         self.actuator.set(0)
@@ -72,76 +68,47 @@ class MiddlePosition(StatefulAutonomous):
     @timed_state(duration=2.8, next_state='shoot')
     def right_drive_forward(self):
         self.drive.arcadeDrive(0.32, self.navx.drive(0.15, 0.5, 0), squaredInputs=False)  # Drive forward and straight
-
-
-        if self.elevatorSwitchDriveLow.get() is False:
-            self.elevator.set(-0.4)
-        elif self.elevatorSwitchDriveHigh.get() is False:
-            self.elevator.set(0)
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0)
         self.intakeLeft.set(0)
         self.actuator.set(0)
 
-    @timed_state(duration=1.75, next_state='left_drive_forward')
+    @timed_state(duration=3, next_state='left_drive_forward')
     def left_rotate(self):
-        self.drive.arcadeDrive(0.5, self.navx.drive(0.07, 0.5, -60), squaredInputs=False)
-
-
-        if self.elevatorSwitchDriveLow.get() is False:
-            self.elevator.set(-0.4)
-        elif self.elevatorSwitchDriveHigh.get() is False:
-            self.elevator.set(0)
+        self.drive.arcadeDrive(0.32, self.navx.drive(0.15, 0.5, -60), squaredInputs=False)
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0)
         self.intakeLeft.set(0)
         self.actuator.set(0)
 
-    @timed_state(duration=2.8, next_state='shoot')
+    @timed_state(duration=3, next_state='shoot')
     def left_drive_forward(self):
-        self.drive.arcadeDrive(0.23, self.navx.drive(0.07, 0.2, 0), squaredInputs=False)  # Drive forward and straight
-
-
-        if self.elevatorSwitchDriveLow.get() is False:
-            self.elevator.set(-0.4)
-        elif self.elevatorSwitchDriveHigh.get() is False:
-            self.elevator.set(0)
+        self.drive.arcadeDrive(0.32, self.navx.drive(0.15, 0.5, 0), squaredInputs=False)  # Drive forward and straight
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0)
         self.intakeLeft.set(0)
         self.actuator.set(0)
 
     @timed_state(duration=1, next_state='drive_backward')
     def shoot(self):
+        self.drive.arcadeDrive(0, 0, squaredInputs=False)
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0.6)
         self.intakeLeft.set(0.6)
         self.actuator.set(0)
-        self.drive.arcadeDrive(0, 0, squaredInputs=False)
-
-
-        if self.elevatorSwitchDriveLow.get() is False:
-            self.elevator.set(-0.4)
-        elif self.elevatorSwitchDriveHigh.get() is False:
-            self.elevator.set(0)
-
 
     @timed_state(duration=1, next_state='stop')
     def drive_backward(self):
         self.drive.arcadeDrive(-0.2, self.navx.drive(0.07, 0.2, 0), squaredInputs=False)
-
-
-        if self.elevatorSwitchDriveLow.get() is False:
-            self.elevator.set(-0.4)
-        elif self.elevatorSwitchDriveHigh.get() is False:
-            self.elevator.set(0)
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0)
         self.intakeLeft.set(0)
         self.actuator.set(0)
 
     @state()
     def stop(self):
-        if self.elevatorSwitchDriveLow.get() is False:
-            self.elevator.set(-0.4)
-        elif self.elevatorSwitchDriveHigh.get() is False:
-            self.elevator.set(0)
+        self.drive.arcadeDrive(0, 0, squaredInputs=False)
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0)
         self.intakeLeft.set(0)
         self.actuator.set(0)
-        self.drive.arcadeDrive(0, 0, squaredInputs=False)

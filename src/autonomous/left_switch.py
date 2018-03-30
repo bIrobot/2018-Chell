@@ -1,6 +1,7 @@
 from robotpy_ext.autonomous import StatefulAutonomous, state, timed_state
 from components import navx_drive
 from networktables import NetworkTables
+import ctre
 
 
 class LeftSwitch(StatefulAutonomous):
@@ -11,7 +12,12 @@ class LeftSwitch(StatefulAutonomous):
     def initialize(self):
         self.tilt = False
         self.elevatorDown = False
-        self.stop = False
+
+        self.encoderTicksPerInch = 1159
+        self.minPosition = -0.25
+        self.drivePosition = -11
+        self.climbPosition = -32
+        self.maxPosition = -40
 
         self.navx = navx_drive.Navx(self.navxSensor)
         self.sd = NetworkTables.getTable("SmartDashboard")
@@ -27,17 +33,16 @@ class LeftSwitch(StatefulAutonomous):
         else:
             self.actuator.set(0)
 
-        if self.elevatorSwitchClimbLow.get() is True and self.elevatorSwitchClimbHigh.get() is True and \
-                self.elevatorDown is False:
-            self.elevator.set(-0.7)
-        elif self.elevatorSwitchDriveLow.get() is True and self.elevatorSwitchDriveHigh.get() is True and \
-                self.elevatorDown is True:
-            self.elevator.set(0.5)
-        else:
+        if self.elevator.getQuadraturePosition() < (self.climbPosition + 1) * self.encoderTicksPerInch:
             self.elevatorDown = True
-            self.elevator.set(0)
+        if self.elevatorDown is False:
+            self.elevator.set(ctre.ControlMode.Position, int(round(self.climbPosition * self.encoderTicksPerInch)))
+        else:
+            self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
 
         self.drive.arcadeDrive(0, 0, squaredInputs=False)
+        self.intakeRight.set(0)
+        self.intakeLeft.set(0)
 
     @timed_state(duration=0.5, next_state='drive_forward')
     def drive_wait(self):
@@ -47,16 +52,16 @@ class LeftSwitch(StatefulAutonomous):
             StatefulAutonomous.next_state(self, name='switch_drive_forward')
         else:
             StatefulAutonomous.next_state(self, name='cross_the_line')
+
         self.drive.arcadeDrive(0, 0, squaredInputs=False)
+        self.intakeRight.set(0)
+        self.intakeLeft.set(0)
+        self.actuator.set(0)
 
     @timed_state(duration=4, next_state='switch_rotate')
     def switch_drive_forward(self):
         self.drive.arcadeDrive(0.36, self.navx.drive(0.15, 0.5, 0), squaredInputs=False)
-
-        if self.elevatorSwitchDriveLow.get() is False:
-            self.elevator.set(-0.4)
-        elif self.elevatorSwitchDriveHigh.get() is False:
-            self.elevator.set(0)
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0)
         self.intakeLeft.set(0)
         self.actuator.set(0)
@@ -64,35 +69,23 @@ class LeftSwitch(StatefulAutonomous):
     @timed_state(duration=2, next_state='shoot')
     def switch_rotate(self):
         self.drive.arcadeDrive(0.2, self.navx.drive(0.15, 0.5, 90), squaredInputs=False)
-
-        if self.elevatorSwitchDriveLow.get() is False:
-            self.elevator.set(-0.4)
-        elif self.elevatorSwitchDriveHigh.get() is False:
-            self.elevator.set(0)
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0)
         self.intakeLeft.set(0)
         self.actuator.set(0)
 
     @timed_state(duration=1, next_state='drive_backward')
     def shoot(self):
+        self.drive.arcadeDrive(0, 0, squaredInputs=False)
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0.6)
         self.intakeLeft.set(0.6)
         self.actuator.set(0)
-        self.drive.arcadeDrive(0, 0, squaredInputs=False)
-
-        if self.elevatorSwitchDriveLow.get() is False:
-            self.elevator.set(-0.4)
-        elif self.elevatorSwitchDriveHigh.get() is False:
-            self.elevator.set(0)
 
     @timed_state(duration=1, next_state='stop')
     def drive_backward(self):
         self.drive.arcadeDrive(-0.2, self.navx.drive(0.07, 0.2, 90), squaredInputs=False)
-
-        if self.elevatorSwitchDriveLow.get() is False:
-            self.elevator.set(-0.4)
-        elif self.elevatorSwitchDriveHigh.get() is False:
-            self.elevator.set(0)
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0)
         self.intakeLeft.set(0)
         self.actuator.set(0)
@@ -100,14 +93,14 @@ class LeftSwitch(StatefulAutonomous):
     @timed_state(duration=4, next_state='stop')
     def cross_the_line(self):
         self.drive.arcadeDrive(0.36, self.navx.drive(0.15, 0.5, 0), squaredInputs=False)
-
-    @state()
-    def stop(self):
-        if self.elevatorSwitchDriveLow.get() is False:
-            self.elevator.set(-0.4)
-        elif self.elevatorSwitchDriveHigh.get() is False:
-            self.elevator.set(0)
         self.intakeRight.set(0)
         self.intakeLeft.set(0)
         self.actuator.set(0)
+
+    @state()
+    def stop(self):
         self.drive.arcadeDrive(0, 0, squaredInputs=False)
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
+        self.intakeRight.set(0)
+        self.intakeLeft.set(0)
+        self.actuator.set(0)
