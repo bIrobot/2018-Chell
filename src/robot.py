@@ -164,8 +164,8 @@ class MyRobot(wpilib.IterativeRobot):
         rightXAxis = self.stick.getRawAxis(4) * 0.8
         rightYAxis = self.stick.getRawAxis(5) * -1
 
-        rightXAxis = 0
-        rightYAxis = 0
+        # rightXAxis = 0
+        # rightYAxis = 0
 
         if rightYAxis >= 0.25 or rightYAxis <= -0.25:
             if rightYAxis <= -0.65:
