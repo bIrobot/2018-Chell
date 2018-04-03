@@ -48,8 +48,8 @@ class MyRobot(wpilib.IterativeRobot):
         self.encoderTicksPerInch = 1159
 
         self.elevator.setQuadraturePosition(0, 0)
-        self.elevator.configForwardSoftLimitThreshold(int(round(-0.25 * self.encoderTicksPerInch)), 10)
-        self.elevator.configReverseSoftLimitThreshold(int(round(-40 * self.encoderTicksPerInch)), 10)
+        self.elevator.configForwardSoftLimitThreshold(int(round(-0.1 * self.encoderTicksPerInch)), 10)
+        self.elevator.configReverseSoftLimitThreshold(int(round(-39.75 * self.encoderTicksPerInch)), 10)
         self.elevator.configForwardSoftLimitEnable(True, 10)
         self.elevator.configReverseSoftLimitEnable(True, 10)
         self.elevator.configPeakOutputForward(0.8, 10)
@@ -152,10 +152,10 @@ class MyRobot(wpilib.IterativeRobot):
 
         self.navxSensor.reset()
 
-        self.minPosition = -0.35
+        self.minPosition = -0.1
         self.drivePosition = -11
         self.climbPosition = -32
-        self.maxPosition = -40
+        self.maxPosition = -39.75
         self.positionSelector = 1
 
         self.powerDistributionPanel.resetTotalEnergy()
