@@ -17,10 +17,12 @@ class MiddlePosition(StatefulAutonomous):
         self.climbPosition = -32
         self.maxPosition = -40
 
+        self.elevator.setQuadraturePosition(0, 0)
+
         self.navx = navx_drive.Navx(self.navxSensor)
         self.sd = NetworkTables.getTable("SmartDashboard")
 
-    @timed_state(duration=7, next_state='drive_wait', first=True)
+    @timed_state(duration=5, next_state='drive_wait', first=True)
     def unlatch_and_tilt(self):
         if self.actuatorSwitchMin.get() is False:
             self.tilt = True

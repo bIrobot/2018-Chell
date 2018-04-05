@@ -17,6 +17,8 @@ class RightOnlyRight(StatefulAutonomous):
         self.climbPosition = -32
         self.maxPosition = -40
 
+        self.elevator.setQuadraturePosition(0, 0)
+
         self.navx = navx_drive.Navx(self.navxSensor)
         self.navx.reset()
         self.sd = NetworkTables.getTable("SmartDashboard")

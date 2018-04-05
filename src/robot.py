@@ -124,8 +124,6 @@ class MyRobot(wpilib.IterativeRobot):
         elif gameData[2] == 'R':
             self.sd.putString('gameData3', "Right")
 
-        self.elevator.setQuadraturePosition(0, 0)
-
     def autonomousPeriodic(self):
         """This function is called periodically during autonomous."""
         self.automodes.run()
@@ -162,15 +160,15 @@ class MyRobot(wpilib.IterativeRobot):
 
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
-        rightXAxis = self.stick.getRawAxis(4) * 0.8
-        rightYAxis = self.stick.getRawAxis(5) * -1
+        leftXAxis = self.stick.getRawAxis(0) * 0.8
+        leftYAxis = self.stick.getRawAxis(1) * -1  # Get joystick value
 
-        # rightXAxis = 0
-        # rightYAxis = 0
+        # leftXAxis = 0
+        # leftYAxis = 0
 
-        if rightYAxis >= 0.25 or rightYAxis <= -0.25:
-            if rightYAxis <= -0.65:
-                rightYAxis = -0.65
+        if leftYAxis >= 0.25 or leftYAxis <= -0.25:
+            if leftYAxis <= -0.65:
+                leftYAxis = -0.65
             self.setRamp = True
         else:
             self.setRamp = False
@@ -189,20 +187,19 @@ class MyRobot(wpilib.IterativeRobot):
                 self.rearLeft.configOpenLoopRamp(0, 0)
                 self.rampState = False
 
-        self.drive.arcadeDrive(rightYAxis, rightXAxis, squaredInputs=True)
+        self.drive.arcadeDrive(leftYAxis, leftXAxis, squaredInputs=True)
 
         self.sdUpdate()
 
-        leftYAxis = self.stick.getRawAxis(1)  # Get joystick value
-        leftYAxis = self.normalize(leftYAxis, 0.15)  # Set deadzone
+        rightYAxis = self.stick.getRawAxis(5)
+        rightYAxis = self.normalize(rightYAxis, 0.15)  # Set deadzone
 
-        if -0.15 < self.stick.getRawAxis(1) < 0.15 and self.climbMode is False:
+        if -0.15 < self.stick.getRawAxis(5) < 0.15 and self.climbMode is False:
             if self.elevator.getQuadraturePosition() < (self.drivePosition + 1) * self.encoderTicksPerInch:
                 self.enableSequence1 = False
             self.positionSelector = 2
-        elif -0.15 < self.stick.getRawAxis(1) < 0.15 and self.climbMode is True:
+        elif -0.15 < self.stick.getRawAxis(5) < 0.15 and self.climbMode is True:
             self.positionSelector = 3
-
             self.battleAxeUp = self.stick.getRawAxis(2) * -0.35
             self.battleAxeDown = self.stick.getRawAxis(3) * 0.35
             if self.battleAxeSwitchUp.get() is True:
@@ -214,7 +211,8 @@ class MyRobot(wpilib.IterativeRobot):
             self.positionSelector = 0
 
         if self.stick.getRawAxis(2) > 0.1 and self.climbMode is False:
-            self.positionSelector = 1
+            self.positionSelector = 5
+            self.elevator.set(ctre.ControlMode.PercentOutput, self.stick.getRawAxis(2))
             self.intakeRight.set(-1)
             self.intakeLeft.set(-1)
         else:
@@ -229,7 +227,7 @@ class MyRobot(wpilib.IterativeRobot):
             self.positionSelector = 2
 
         if self.positionSelector is 0:
-            self.elevator.set(leftYAxis)
+            self.elevator.set(rightYAxis)
         elif self.positionSelector is 1:
             self.elevator.set(ctre.ControlMode.Position, int(round(self.minPosition * self.encoderTicksPerInch)))
         elif self.positionSelector is 2:
@@ -239,7 +237,7 @@ class MyRobot(wpilib.IterativeRobot):
         elif self.positionSelector is 4:
             self.elevator.set(ctre.ControlMode.Position, int(round(self.maxPosition * self.encoderTicksPerInch)))
         else:
-            self.elevator.set(ctre.ControlMode.PercentOutput, 0)
+            pass
 
         if self.elevatorZeroSensor.get() is False:
             self.elevator.setQuadraturePosition(0, 0)
