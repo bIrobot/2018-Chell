@@ -8,7 +8,7 @@ class RightSwitch(StatefulAutonomous):
     MODE_NAME = "Right Switch"
 
     def initialize(self):
-        self.tilt = False
+        self.tilt = True
         self.elevatorDown = False
 
         self.encoderTicksPerInch = 1159
@@ -84,7 +84,7 @@ class RightSwitch(StatefulAutonomous):
 
     @timed_state(duration=1, next_state='stop')
     def drive_backward(self):
-        self.drive.arcadeDrive(-0.2, self.navx.drive(0.07, 0.2, -90), squaredInputs=False)
+        self.drive.arcadeDrive(-0.2, self.navx.drive(0.15, 0.5, -90), squaredInputs=False)
         self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0)
         self.intakeLeft.set(0)
@@ -92,7 +92,7 @@ class RightSwitch(StatefulAutonomous):
 
     @timed_state(duration=4, next_state='stop')
     def cross_the_line(self):
-        self.drive.arcadeDrive(0.25, self.navx.drive(0.07, 0.2, 0), squaredInputs=False)
+        self.drive.arcadeDrive(0.36, self.navx.drive(0.15, 0.5, 0), squaredInputs=False)
         self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0)
         self.intakeLeft.set(0)

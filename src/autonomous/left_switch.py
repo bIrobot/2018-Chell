@@ -10,7 +10,7 @@ class LeftSwitch(StatefulAutonomous):
     DEFAULT = True
 
     def initialize(self):
-        self.tilt = False
+        self.tilt = True
         self.elevatorDown = False
 
         self.encoderTicksPerInch = 1159
@@ -95,6 +95,7 @@ class LeftSwitch(StatefulAutonomous):
     @timed_state(duration=4, next_state='stop')
     def cross_the_line(self):
         self.drive.arcadeDrive(0.36, self.navx.drive(0.15, 0.5, 0), squaredInputs=False)
+        self.elevator.set(ctre.ControlMode.Position, int(round(self.drivePosition * self.encoderTicksPerInch)))
         self.intakeRight.set(0)
         self.intakeLeft.set(0)
         self.actuator.set(0)

@@ -49,7 +49,7 @@ class MyRobot(wpilib.IterativeRobot):
 
         self.elevator.setQuadraturePosition(0, 0)
         self.elevator.configForwardSoftLimitThreshold(int(round(-0.1 * self.encoderTicksPerInch)), 10)
-        self.elevator.configReverseSoftLimitThreshold(int(round(-39.75 * self.encoderTicksPerInch)), 10)
+        self.elevator.configReverseSoftLimitThreshold(int(round(-39.5 * self.encoderTicksPerInch)), 10)
         self.elevator.configForwardSoftLimitEnable(True, 10)
         self.elevator.configReverseSoftLimitEnable(True, 10)
         self.elevator.configPeakOutputForward(0.8, 10)
@@ -62,6 +62,7 @@ class MyRobot(wpilib.IterativeRobot):
         self.elevator.config_kI(0, 0.003, 10)
         self.elevator.config_kD(0, 0, 10)
         self.elevator.config_IntegralZone(0, 100, 10)
+        self.elevator.configAllowableClosedloopError(0, int(round(0.01 * self.encoderTicksPerInch)), 10)
 
         # initialize limit switches and hall-effect sensors
         self.actuatorSwitchMin = wpilib.DigitalInput(0)
@@ -150,10 +151,10 @@ class MyRobot(wpilib.IterativeRobot):
 
         self.navxSensor.reset()
 
-        self.minPosition = -0.1
+        self.minPosition = 0
         self.drivePosition = -11
         self.climbPosition = -32
-        self.maxPosition = -39.75
+        self.maxPosition = -39.5
         self.positionSelector = 1
 
         self.powerDistributionPanel.resetTotalEnergy()
@@ -161,31 +162,36 @@ class MyRobot(wpilib.IterativeRobot):
     def teleopPeriodic(self):
         """This function is called periodically during operator control."""
         leftXAxis = self.stick.getRawAxis(0) * 0.8
-        leftYAxis = self.stick.getRawAxis(1) * -1  # Get joystick value
+        leftYAxis = self.stick.getRawAxis(1) * -0.8  # Get joystick value
 
         # leftXAxis = 0
         # leftYAxis = 0
 
-        if leftYAxis >= 0.25 or leftYAxis <= -0.25:
-            if leftYAxis <= -0.65:
-                leftYAxis = -0.65
-            self.setRamp = True
-        else:
-            self.setRamp = False
+        # if leftYAxis >= 0.25 or leftYAxis <= -0.25:
+        #     if leftYAxis <= -0.65:
+        #         leftYAxis = -0.65
+        #     self.setRamp = True
+        # else:
+        #     self.setRamp = False
+        #
+        # if self.setRamp != self.rampState:
+        #     if self.setRamp is True:
+        #         self.frontRight.configOpenLoopRamp(1, 0)
+        #         self.rearRight.configOpenLoopRamp(1, 0)
+        #         self.frontRight.configOpenLoopRamp(1, 0)
+        #         self.rearLeft.configOpenLoopRamp(1, 0)
+        #         self.rampState = True
+        #     else:
+        #         self.frontRight.configOpenLoopRamp(0, 0)
+        #         self.rearRight.configOpenLoopRamp(0, 0)
+        #         self.frontRight.configOpenLoopRamp(0, 0)
+        #         self.rearLeft.configOpenLoopRamp(0, 0)
+        #         self.rampState = False
 
-        if self.setRamp != self.rampState:
-            if self.setRamp is True:
-                self.frontRight.configOpenLoopRamp(1, 0)
-                self.rearRight.configOpenLoopRamp(1, 0)
-                self.frontRight.configOpenLoopRamp(1, 0)
-                self.rearLeft.configOpenLoopRamp(1, 0)
-                self.rampState = True
-            else:
-                self.frontRight.configOpenLoopRamp(0, 0)
-                self.rearRight.configOpenLoopRamp(0, 0)
-                self.frontRight.configOpenLoopRamp(0, 0)
-                self.rearLeft.configOpenLoopRamp(0, 0)
-                self.rampState = False
+        self.frontRight.configOpenLoopRamp(0, 0)
+        self.rearRight.configOpenLoopRamp(0, 0)
+        self.frontRight.configOpenLoopRamp(0, 0)
+        self.rearLeft.configOpenLoopRamp(0, 0)
 
         self.drive.arcadeDrive(leftYAxis, leftXAxis, squaredInputs=True)
 
@@ -201,7 +207,7 @@ class MyRobot(wpilib.IterativeRobot):
         elif -0.15 < self.stick.getRawAxis(5) < 0.15 and self.climbMode is True:
             self.positionSelector = 3
             self.battleAxeUp = self.stick.getRawAxis(2) * -0.35
-            self.battleAxeDown = self.stick.getRawAxis(3) * 0.35
+            self.battleAxeDown = self.stick.getRawAxis(3) * 0.50
             if self.battleAxeSwitchUp.get() is True:
                 self.battleAxeUp = 0
             if self.battleAxeSwitchDown.get() is True:
@@ -224,7 +230,17 @@ class MyRobot(wpilib.IterativeRobot):
             self.intakeLeft.set(self.stick.getRawAxis(3))
 
         if self.climbRobot is True:
-            self.positionSelector = 2
+            self.positionSelector = 1
+
+        if self.elevator.getQuadraturePosition() > -2 * self.encoderTicksPerInch:
+            self.elevator.configPeakOutputForward(0.2, 10)
+            self.elevator.configPeakOutputReverse(-0.5, 10)
+        elif self.elevator.getQuadraturePosition() < -37.5 * self.encoderTicksPerInch:
+            self.elevator.configPeakOutputForward(0.8, 10)
+            self.elevator.configPeakOutputReverse(-0.5, 10)
+        else:
+            self.elevator.configPeakOutputForward(0.8, 10)
+            self.elevator.configPeakOutputReverse(-1, 10)
 
         if self.positionSelector is 0:
             self.elevator.set(rightYAxis)
@@ -259,6 +275,11 @@ class MyRobot(wpilib.IterativeRobot):
             self.actuatorSpeedyOut = 0.3
             self.actuatorCount = 0
 
+        if self.battleAxeSwitchUp.get() is True:
+            self.battleAxeUp = 0
+            if self.startClimb is True:
+                self.actuatorSpeedyIn = -0.45
+
         if self.actuatorSwitchMin.get() is False:
             self.actuatorSpeedyIn = 0
             self.climbMode = True
@@ -280,11 +301,6 @@ class MyRobot(wpilib.IterativeRobot):
             self.battleAxeUp = -0.35
             self.battleAxeDown = 0
 
-        if self.battleAxeSwitchUp.get() is True:
-            self.battleAxeUp = 0
-            if self.startClimb is True:
-                self.actuatorSpeedyIn = -0.4
-
         if self.battleAxeSwitchDown.get() is True:
             self.battleAxeDown = 0
 
@@ -301,27 +317,28 @@ class MyRobot(wpilib.IterativeRobot):
             axeOut = 0
             axeIn = 0
 
-        if self.enableSequence2 is True:
-            axeIn = -1
+        # if self.enableSequence2 is True:
+        #     axeIn = -1
 
-        if self.battleAxeExtenderSwitch.get() is False:
-            axeIn = 0
-            self.enableSequence2 = False
+        # if self.battleAxeExtenderSwitch.get() is False:
+        #     axeIn = 0
+        #     self.enableSequence2 = False
 
         self.axeExtender.set(axeOut + axeIn)
 
     def testInit(self):
-        pass
-        # self.actuatorIn = 0
-        # self.actuatorOut = 0
+        self.actuatorIn = 0
+        self.actuatorOut = 0
 
     def testPeriodic(self):
         """This function is called periodically during test mode."""
+        self.actuatorIn = (self.stick.getRawAxis(2) * -0.5)
+        self.actuatorOut = (self.stick.getRawAxis(3) * 0.5)
         # if self.actuatorSwitchMin.get() is False:
-        #     actuatorIn = 0
+        #     self.actuatorIn = 0
         # if self.actuatorSwitchMax.get() is False:
-        #     actuatorOut = 0
-        # self.actuator.set(actuatorIn + actuatorOut)
+        #     self.actuatorOut = 0
+        self.axeExtender.set(self.actuatorIn + self.actuatorOut)
 
         # self.battleAxe.set((self.stick.getRawAxis(2) * -0.5) + (self.stick.getRawAxis(3) * 0.5))
 
@@ -356,6 +373,7 @@ class MyRobot(wpilib.IterativeRobot):
         elif wpilib.DriverStation.getInstance().getAlliance() is wpilib.DriverStation.Alliance.Blue:
             theme = "blue"
             self.sd.putString('theme', theme)
+        self.sd.putBoolean('example_variable', self.battleAxeSwitchUp.get())
 
 
 if __name__ == "__main__":

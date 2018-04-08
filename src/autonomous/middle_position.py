@@ -8,7 +8,7 @@ class MiddlePosition(StatefulAutonomous):
     MODE_NAME = "Middle Position"
 
     def initialize(self):
-        self.tilt = False
+        self.tilt = True
         self.elevatorDown = False
 
         self.encoderTicksPerInch = 1159
